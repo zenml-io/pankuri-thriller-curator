@@ -74,13 +74,16 @@ def _optional_uuid(name: str) -> uuid.UUID | None:
     return uuid.UUID(value)
 
 
-def run_request(payload: dict[str, Any]) -> Any:
+def run_request(payload: dict[str, Any], *, repeat: int | None = None) -> Any:
     """Run one curator request and record it in Kitaru when identity is available."""
     request_id = str(payload.get("request_id") or "thriller-night")
+    session_name = f"Thriller night: {request_id}"
+    if repeat is not None:
+        session_name = f"{session_name} (run {repeat})"
     runner = build_runner(
         agent_id=_optional_uuid("KITARU_AGENT_ID"),
         agent_version_id=_optional_uuid("KITARU_AGENT_VERSION_ID"),
-        session_name=f"Thriller night: {request_id}",
+        session_name=session_name,
     )
     return runner.invoke({"messages": [{"role": "user", "content": build_prompt(payload)}]})
 
